@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian States Game</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'48'%20height%3D'48'%20viewBox%3D'0%200%2016%2016'%3E%3Ctext%20x%3D'0'%20y%3D'14'%3E%F0%9F%87%AE%F0%9F%87%B3%3C%2Ftext%3E%3C%2Fsvg%3E" />
+
+    <style>
+        /* Layout setup */
+        body {
+            display: grid;
+            gap: 1em;
+            grid-template-columns: 4fr 1fr;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        /* SVG styling */
+        svg {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Center the status and score display */
+        div {
+            display: grid;
+            place-content: center;
+            padding: 1em;
+            text-align: center;
+        }
+
+        .status {
+            font-size: 1.2em;
+            color: #333;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: green;
+        }
+
+        /* Path styling */
+        path {
+            fill: lightgray;
+            stroke: black;
+            stroke-width: 0.5;
+            cursor: pointer;
+        }
+
+        /* Highlight on hover for unguessed paths */
+        path:not(.guessed):hover {
+            fill: #FFA500;
+            stroke-width: 0.7;
+        }
+
+        /* Style for correctly guessed paths */
+        .guessed {
+            fill: lightgreen !important;
+            cursor: default;
+        }
+
+        /* Styling for messages */
+        .message {
+            margin-top: 15px;
+            font-size: 1em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<svg></svg>
+<div>
+    <div class="status">
+        Click the correct state based on the meaning: <span id="meaningDisplay"></span>
+    </div>
+    <div class="score">Score: <span id="scoreDisplay">0</span></div>
+    <div class="message" id="messageDisplay"></div>
+</div>
+
+<script>
+    let currentTarget = null;
+    let score = 0;
+    let totalStates = 0;
+    let guessedStates = new Set();
+
+    async function fetchData() {
+        const response = await fetch('indian-states.json');
+        const data = await response.json();
+        totalStates = data.length;
+        renderSVG(data);
+        startNewRound(data);
+    }
+
+    function renderSVG(data) {
+        const svg = document.querySelector('svg');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const meaningDisplay = document.getElementById('meaningDisplay');
+        const messageDisplay = document.getElementById('messageDisplay');
+
+        data.forEach(state => {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', state.d);
+            path.setAttribute('id', state.state_code);
+            path.dataset.stateCode = state.state_code;
+            path.dataset.state = state.state;
+            path.dataset.meaning = state.meaning;
+
+            path.addEventListener('click', () => {
+                if (path.dataset.stateCode === currentTarget) {
+                    score++;
+                    scoreDisplay.textContent = score;
+                    guessedStates.add(currentTarget);
+                    path.classList.add('guessed');
+                    messageDisplay.textContent = "Correct!";
+
+                    if (guessedStates.size === totalStates) {
+                        messageDisplay.textContent = "Congratulations! You've guessed all states. The game will reset.";
+                        setTimeout(resetGame, 2000); // Delay reset to give user time to read message
+                    } else {
+                        startNewRound(data);
+                    }
+                } else {
+                    messageDisplay.textContent = "Incorrect! Try again.";
+                }
+            });
+
+            svg.appendChild(path);
+        });
+
+        // Set SVG viewBox
+        const bbox = svg.getBBox();
+        svg.setAttribute("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    }
+
+    function startNewRound(data) {
+        // Pick a random state that hasn't been guessed
+        const remainingStates = data.filter(state => !guessedStates.has(state.state_code));
+        const randomState = remainingStates[Math.floor(Math.random() * remainingStates.length)];
+        currentTarget = randomState.state_code;
+        document.getElementById('meaningDisplay').textContent = randomState.meaning;
+    }
+
+    function resetGame() {
+        score = 0;
+        guessedStates.clear();
+        document.getElementById('scoreDisplay').textContent = score;
+        document.getElementById('messageDisplay').textContent = "Game reset. Let's start again!";
+
+        // Remove 'guessed' class from all paths
+        document.querySelectorAll('path').forEach(path => {
+            path.classList.remove('guessed');
+        });
+
+        fetchData();
+    }
+
+    fetchData();
+</script>
+
+</body>
+</html>

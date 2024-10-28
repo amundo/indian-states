@@ -6,65 +6,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'48'%20height%3D'48'%20viewBox%3D'0%200%2016%2016'%3E%3Ctext%20x%3D'0'%20y%3D'14'%3E%F0%9F%87%AE%F0%9F%87%B3%3C%2Ftext%3E%3C%2Fsvg%3E" />
   <title>Indian States Map</title>
-  <style>
+  <style>/* Apply grid layout for the entire page */
     body {
-      display: grid;
-      gap: 1em;
-      grid-template-columns: 4fr 1fr;
+        display: grid;
+        gap: 1em;
+        grid-template-columns: 4fr 1fr;
+        margin: 0;
+        font-family: Arial, sans-serif;
     }
-
-    html,
-    body {
-      height: 100%;
+    
+    /* Full height for the SVG and status area */
+    html, body {
+        height: 100%;
     }
-
+    
+    /* SVG styling for improved scalability and visibility */
     svg {
-
-      border: 1px solid;
-      width: auto;
-      height: 100%;
-      width: 100%;
+        border: 1px solid #ccc;
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     }
+    
+    /* Center-align the status div content */
     div {
-      display: grid;
-      place-content: center;
+        display: grid;
+        place-content: center;
+        padding: 1em;
+        text-align: center;
     }
-
+    
+    /* Style for the status text */
     .status {
-      font-size: 1.2em;
-      margin-top: 10px;
+        font-size: 1.2em;
+        color: #333;
+        font-weight: bold;
+        margin-top: 0;
     }
-
+    
+    /* SVG path styling for each state */
     path {
-      fill: lightgray;
-      stroke: black;
-      stroke-width: 0.5;
-      cursor: pointer;
+        fill: lightgray;
+        stroke: black;
+        stroke-width: 0.5;
+        cursor: pointer;
     }
-
+    
+    /* Hover effect for paths */
     path:hover {
-      fill: orange;
+        fill: #FFA500;
     }
+    
   </style>
 </head>
 
 <body>
 
-  <svg></svg>
+  <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet"></svg>
   <div class="status"></div>
 
   <script>
-    async function fetchData() {
-      const response = await fetch('indian-states.json');
-      const data = await response.json();
-      renderSVG(data);
-    }
+async function fetchData() {
+    const response = await fetch('indian-states.json');
+    const data = await response.json();
+    renderSVG(data);
+}
 
-    function renderSVG(data) {
-      const svg = document.querySelector('svg');
-      const statusDiv = document.querySelector('.status');
+function renderSVG(data) {
+    const svg = document.querySelector('svg');
+    const statusDiv = document.querySelector('.status');
 
-      data.forEach(state => {
+    data.forEach(state => {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', state.d);
         path.setAttribute('id', state.state_code);
@@ -73,20 +86,23 @@
         path.dataset.meaning = state.meaning;
 
         path.addEventListener('mouseover', () => {
-          statusDiv.innerHTML = `<strong>${state.state}</strong>
-          <br>
-          <em>${state.meaning}</em>`;
+            statusDiv.textContent = `State: ${state.state}, Code: ${state.state_code}, Meaning: ${state.meaning}`;
         });
 
         path.addEventListener('mouseleave', () => {
-          statusDiv.textContent = '';
+            statusDiv.textContent = '';
         });
 
         svg.appendChild(path);
-      });
-    }
+    });
 
-    fetchData();
+    // Calculate the bounding box of all paths and set viewBox
+    const bbox = svg.getBBox();
+    svg.setAttribute("viewBox", `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+}
+
+fetchData();
   </script>
 
 </body>
