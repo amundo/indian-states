@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'48'%20height%3D'48'%20viewBox%3D'0%200%2016%2016'%3E%3Ctext%20x%3D'0'%20y%3D'14'%3E%F0%9F%87%AE%F0%9F%87%B3%3C%2Ftext%3E%3C%2Fsvg%3E" />
+  <title>Indian States Map</title>
+  <style>
+    body {
+      display: grid;
+      gap: 1em;
+      grid-template-columns: 4fr 1fr;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    svg {
+
+      border: 1px solid;
+      width: auto;
+      height: 100%;
+      width: 100%;
+    }
+    div {
+      display: grid;
+      place-content: center;
+    }
+
+    .status {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    path {
+      fill: lightgray;
+      stroke: black;
+      stroke-width: 0.5;
+      cursor: pointer;
+    }
+
+    path:hover {
+      fill: orange;
+    }
+  </style>
+</head>
+
+<body>
+
+  <svg></svg>
+  <div class="status"></div>
+
+  <script>
+    async function fetchData() {
+      const response = await fetch('indian-states.json');
+      const data = await response.json();
+      renderSVG(data);
+    }
+
+    function renderSVG(data) {
+      const svg = document.querySelector('svg');
+      const statusDiv = document.querySelector('.status');
+
+      data.forEach(state => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', state.d);
+        path.setAttribute('id', state.state_code);
+        path.dataset.stateCode = state.state_code;
+        path.dataset.state = state.state;
+        path.dataset.meaning = state.meaning;
+
+        path.addEventListener('mouseover', () => {
+          statusDiv.innerHTML = `<strong>${state.state}</strong>
+          <br>
+          <em>${state.meaning}</em>`;
+        });
+
+        path.addEventListener('mouseleave', () => {
+          statusDiv.textContent = '';
+        });
+
+        svg.appendChild(path);
+      });
+    }
+
+    fetchData();
+  </script>
+
+</body>
+
+</html>
