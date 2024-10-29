@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "build": "pandoc -f markdown -t html --section-divs --css country-quiz-docs.css --template=template.html -o country-quiz-docs.html country-quiz-docs.md"
+  }
+}

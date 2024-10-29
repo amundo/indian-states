@@ -1,0 +1,88 @@
+html,
+body {
+  height: 100%;
+}
+
+/* Layout setup */
+country-quiz {
+  display: grid;
+  height: 100%;
+  gap: 1em;
+  grid-template:
+    "header display" auto
+    "svg display" 1fr
+    / 4fr 1fr;
+  margin: 0;
+  font-family: Arial, sans-serif;
+
+  svg {
+    grid-area: svg;
+    border: 1px solid #ccc;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+
+
+    /* Path styling */
+    path {
+      fill: lightgray;
+      stroke: black;
+      stroke-width: 0.5;
+      cursor: pointer;
+    }
+
+    /* Highlight on hover for unguessed paths */
+    path:not(.guessed):hover {
+      fill: #FFA500;
+      stroke-width: 0.7;
+    }
+
+    /* Style for correctly guessed paths */
+    .guessed {
+      fill: lightgreen !important;
+      cursor: default;
+    }
+
+  }
+
+  header {
+    grid-area: header;
+    background-color: #f8f8f8;
+    padding: 1em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Center the status and score display */
+  aside.info {
+    display: grid;
+    place-content: center;
+    padding: 1em;
+    text-align: center;
+
+    .status {
+      font-size: 1.2em;
+      color: #333;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .score {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: green;
+    }
+
+  }
+
+}
+
+
+
+
+/* Styling for messages */
+.message {
+  margin-top: 15px;
+  font-size: 1em;
+  color: #555;
+}
